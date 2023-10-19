@@ -1,0 +1,60 @@
+---
+- name: Deploy VM from Template
+  hosts: localhost
+  gather_facts: false
+
+  vars_prompt:
+    - name: vcenter_ip
+      prompt: 'Enter vCenter hostname/ip:'
+      private: false
+      default: adc-vc.adc.lan
+    - name: vcenter_username
+      prompt: 'Enter vCenter username:'
+      private: false
+    - name: vcenter_password
+      prompt: 'Enter vCenter password:'
+      private: true
+    - name: datacenter
+      prompt: 'Enter datacenter name:'
+      private: false
+    - name: vm_template
+      prompt: 'Enter VM template name:'
+      private: false
+    - name: folder_name
+      prompt: 'Enter folder name to deploy VM:''
+      private: false
+    - name: vmname
+      prompt: 'Enter name of new VM:''
+      private: false
+    - name: vcpu_count
+      prompt: 'Enter vCPU count for the VM:'
+      default: 2
+      private: false
+    - name: ram_size
+      prompt: 'Enter RAM size (in MB) for the VM:'
+      default: 2048
+      private: false
+#    - name: disk_size
+#      prompt: "Enter disk size (in GB) for the VM:"
+#      default: 50
+#      private: no
+
+  tasks:
+    - name: Create VM
+      community.vmware.vmware_guest:
+        hostname: "{{ vcenter_ip }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: false
+        datacenter: "{{ datacenter }}"
+        folder: "{{ folder_name }}"
+        template: "{{ vm_template }}"
+        name: "{{ vmname }}"
+        state: powered-on
+        hardware:
+          memory_mb: "{{ ram_size }}"
+          num_cpus: "{{ vcpu_count }}"
+#          disk:
+#            - size_gb: "{{ disk_size }}"
+      delegate_to: localhost
+

@@ -1,0 +1,52 @@
+---
+- name: Check server compliance
+  hosts: esxiservers
+  gather_facts: true
+
+  tasks:
+    - name: Check firewall status
+      command: systemctl is-active firewalld
+      register: firewall_result
+      changed_when: false
+      failed_when: false
+
+    - name: Check SSH root login status
+      command: grep "PermitRootLogin" /etc/ssh/sshd_config | grep -v "#" | awk '{print $2}'
+      register: ssh_root_result
+      changed_when: false
+      failed_when: false
+
+    - name: Check NTP status
+      command: systemctl is-active ntpd
+      register: ntp
+      changed_when: false
+      failed_when: false
+
+    - name: Check NTP synchronization
+      command: ntpq -p | grep '^*'
+      register: ntp_sync_result
+      changed_when: false
+      failed_when: false
+
+    - name: Display power profile
+      command: cat /sys/devices/system/cpu/cpu0/cpufreq/scaling_governor
+      register: power_profile_result
+      changed_when: false
+      failed_when: false
+
+    - name: Check syslog status
+      command: systemctl is-active syslog.service
+      register: syslog_result
+      changed_when: false
+      failed_when: false
+
+    - name: Display compliance results
+      debug:
+        msg: |
+          Firewall status: {{ firewall_result.stdout }}
+          SSH root login: {{ ssh_root_result.stdout }}
+          NTP status: {{ ntp_result.stdout }}
+          NTP synchronization: {{ ntp_sync_result.stdout }}
+          Power profile: {{ power_profile_result.stdout }}
+          Syslog status: {{ syslog_result.stdout }}
+

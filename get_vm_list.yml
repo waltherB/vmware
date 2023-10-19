@@ -1,0 +1,33 @@
+---
+#
+# This playbook get a list of VMs from a Cluster
+#
+- name: Get list of VMs from a Cluster
+  hosts: localhost
+  gather_facts: no
+
+  vars_prompt:
+    - name: vcenter_ip
+      prompt: vCenter IP or hostname
+      private: no
+
+    - name: vcenter_username
+            prompt: vCenter username
+      default: "{{ vcenter_username }}"
+      private: no
+
+    - name: vcenter_password
+      prompt: vCenter password
+      private: yes
+
+  tasks:
+  - name: Get list of VMs from a Cluster
+    community.vmware.vmware_vm_info:
+      hostname: "{{ vcenter_ip }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: False
+      vm_type: vm
+    register: vm_info
+    delegate_to: localhost
+    connection: local

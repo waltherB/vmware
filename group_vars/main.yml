@@ -1,0 +1,3 @@
+vcenter_ip: vcenter1
+vcenter_username: vmadmin
+datacenter: DC1

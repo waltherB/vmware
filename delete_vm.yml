@@ -1,0 +1,40 @@
+---
+- name: Shut down and delete VM
+  hosts: localhost
+  gather_facts: false
+
+  vars_prompt:
+    - name: vcenter_ip
+      prompt: "Enter vCenter hostname/ip:"
+    - name: vcenter_username
+      prompt: "Enter vCenter username:"
+    - name: vcenter_password
+      prompt: "Enter vCenter password:"
+      private: yes
+    - name: datacenter
+      prompt: "Enter datacenter name:"
+    - name: vmname
+      prompt: "Enter VM name to shut down and delete:"
+
+  tasks:
+    - name: Shut down VM
+      vmware_guest_powerstate:
+        hostname: "{{ vcenter_ip }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: False
+        datacenter: "{{ datacenter }}"
+        name: "{{ vmname }}"
+        state: powered_off
+      delegate_to: localhost
+
+    - name: Delete VM
+      vmware_guest:
+        hostname: "{{ vcenter_ip }}"
+        username: "{{ vcenter_username }}"
+        password: "{{ vcenter_password }}"
+        validate_certs: False
+        datacenter: "{{ datacenter }}"
+        name: "{{ vmname }}"
+        state: absent
+      delegate_to: localhost

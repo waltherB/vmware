@@ -1,0 +1,47 @@
+---
+#
+# This playbook shows 'vm_name' information
+#
+- name: Get settings for a virtual machine
+  hosts: localhost
+  gather_facts: no
+
+  vars_prompt:
+    - name: vcenter_ip
+      prompt: vCenter IP or hostname
+      private: no
+
+    - name: vcenter_username
+            prompt: vCenter username
+      default: "{{ vcenter_username }}"
+      private: no
+
+    - name: vcenter_password
+      prompt: vCenter password
+      private: yes
+
+    - name: datacenter
+      prompt: VMWare datacenter
+      private: no
+
+    - name: vm_name
+      prompt: VM Name
+      private: no
+
+  tasks:
+  - name: "Get VM info"
+    community.vmware.vmware_guest_info:
+      hostname: "{{ vcenter_ip }}"
+      username: "{{ vcenter_username }}"
+      password: "{{ vcenter_password }}"
+      validate_certs: False
+      datacenter: "{{ datacenter }}"
+      name: "{{ vm_name }}"
+    register: vm_info
+    delegate_to: localhost
+    connection: local
+
+  - name: "Print VM info"
+    debug:
+      msg: "{{ vm_info }}"
+

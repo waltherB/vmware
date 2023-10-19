@@ -1,0 +1,50 @@
+---
+#
+# This playbook shows cluster info
+#
+- name: Get cluster info
+  hosts: localhost
+  gather_facts: no
+
+  vars_prompt:
+    - name: vcenter_ip
+      prompt: vCenter IP or hostname
+      private: no
+
+    - name: vcenter_username
+            prompt: vCenter username
+      default: "{{ vcenter_username }}"
+      private: no
+
+    - name: vcenter_password
+      prompt: vCenter password
+      private: yes
+
+    - name: datacenter
+      prompt: VMWare datacenter
+      private: no
+
+    - name: dvswitch
+      prompt: dvSwitch Name
+      private: no
+
+    - name: primary_pvlans
+      prompt: Add one or more pvlan ids seperated by space
+      private: no
+
+
+
+  tasks:
+  - name: Gather all registered dvswitch
+    community.vmware.vmware_dvswitch_pvlans:
+    hostname: "{{ vcenter_ip }}"
+    username: "{{ vcenter_username }}"
+    password: "{{ vcenter_password }}"
+    switch: "{{ dvswitch }}"
+    validate_certs: false
+    primary_pvlans:
+      - primary_pvlan_id: "{{ primary_pvlans }}"
+    delegate_to: localhost
+
+  - fail: msg="The variable 'primary_pvlans' is empty"
+    when: (primary_pvlans is not defined) or (primary_pvlans|length == 0)
