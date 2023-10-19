@@ -1,4 +1,3 @@
----
 - name: Deploy VM from Template
   hosts: localhost
   gather_facts: false
